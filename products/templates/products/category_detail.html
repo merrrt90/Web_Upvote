@@ -1,0 +1,123 @@
+{% extends 'base.html'%}
+{% block content %}
+{% load nav_tags %}
+<div class="subloader is-grey is-active">
+    <div class="loader is-loading"></div>
+</div>
+<!-- Container -->
+<div id="friends-page" class="friends-wrapper main-container">
+    <div class="columns">
+        <div class="column is-12">
+            <div class="stats-wrapper">
+                <div class="stats-header">
+                    <div class="avatar-wrapper">
+                        <img class="avatar" src="{{category.image.url}}" data-user-popover="0" alt="">
+                        <div class="badge">
+                            <i data-feather="check"></i>
+                        </div>
+                    </div>
+                    <div class="user-info">
+                        <h1>{{category.name}}</h1>
+                        <p>{{category.product_description}}</p>
+                        </p>
+                    </div>
+                    <div class="main-stats">
+                        <div class="stat-block is-centered">
+                            <h4>Products</h4>
+                            <p>{{products.count}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--First tab-->
+    <div id="all-friends" class="card-row-wrap is-active">
+        <div class="card-row-placeholder is-hidden">
+            No matching results
+        </div>
+        <div class="columns">
+            <div class="column is-12">
+                <div class="card-row">
+                    <!--Products-->
+                    {% for item in products %}
+                    <div class="card-flex friend-card">
+                        <div class="star-friend is-active">
+                            <!--<i data-feather="star"></i>-->
+                        </div>
+                        <div class="img-container">
+                            <a href="{% url 'product-detail' item.slug %}">
+                                <img class="avatar" src="{{item.icon.url}}" alt="">
+                                <img class="country" src="{{item.category.image.url}}" alt="">
+                            </a>
+                        </div>
+                        <div class="friend-info">
+                            <a href="{% url 'product-detail' item.slug %}">
+                                <h3>{{item.title}}</h3>
+                                <p style="height:40px !important;">{{item.summary_desc}}</p>
+                            </a>
+                        </div>
+                        <div class="friend-stats">
+                            {% if  item|is_voted_tag:user %}
+                            <input type="button" class="button is-solid primary-button raised" id="like{{ item.id }}"
+                                name="{{ item.id }}" value="{{item.total_vote}}
+                            Voted" style="padding-top: 10px;padding-bottom: 30px;" />
+
+                            {% else %}
+                            <input type="button" class="button is-solid dark-grey-button raised" id="like{{ item.id }}"
+                                name="{{ item.id }}" value="{{item.total_vote}}
+                            Voted" style="padding-top: 10px;padding-bottom: 30px;" />
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if user.is_authenticated %}
+                    <script>
+                        $('#like{{ item.id }}').click(function () {
+                            var count = 0;
+                            $.ajax({
+                                type: "POST",
+                                url: "{% url 'upvote' item.id %}",
+                                data: { 'product_id': $(this).attr('name'), 'csrfmiddlewaretoken': '{{ csrf_token }}' },
+                                dataType: "json",
+                                success: function (response) {
+                                    var string = JSON.stringify(response)
+                                    var objects = JSON.parse(string)
+                                    count = objects[0].fields.votes.length
+                                },
+                                error: function (rs, e) {
+
+                                }
+                            }).done(function (data, textStatus, jqXHR) {
+
+                                if ($('#like{{ item.id }}').attr('class') == 'button is-solid primary-button raised') {
+                                    $('#like{{ item.id }}').attr('class', 'button is-solid dark-grey-button raised');
+                                    $('#like{{ item.id }}').attr('value', count + ' Vote');
+                                } else {
+                                    $('#like{{ item.id }}').attr('class', 'button is-solid primary-button raised');
+                                    $('#like{{ item.id }}').attr('value', count + ' Voted');
+                                }
+                            });
+
+                        })
+                    </script>
+                    {% else %}
+                    <script>
+                        $('#like{{ item.id }}').click(function () {
+                            window.location = "{% url 'login' %}";
+                        })
+                    </script>
+                    {% endif %}
+                    {% endfor %}
+                    <!--Products-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $("#categories_link").addClass("is-active");
+</script>
+
+
+{% endblock %}

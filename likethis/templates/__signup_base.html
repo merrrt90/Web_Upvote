@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+{% load static %}
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <title> </title>
+    <link rel="icon" type="image/png" href="{% static 'assets/images/favicon.png' %}" />
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:600,700,800,900" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500" rel="stylesheet">
+    <link href="{% static 'assets/css/materialdesignicons.min.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/css/webfont.css' %}" rel="stylesheet">
+    <!-- Core CSS -->
+    <link href="{% static 'assets/css/bulma.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/css/app.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/css/core.css' %}" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Pageloader -->
+    <div class="pageloader"></div>
+    <div class="infraloader is-active"></div>
+    <div class="signup-wrapper">
+
+        <div class="fake-nav">
+            <a href="/" class="logo">
+                <img src="assets/images/logo/friendkit.svg" width="112" height="28" alt="">
+            </a>
+        </div>
+
+        {% block content %}
+        {% endblock %}
+
+
+
+        <!-- Concatenated js plugins and jQuery -->
+        <script src="{% static 'assets/js/app.js' %}"></script>
+
+        <!-- Core js -->
+        <script src="{% static 'assets/data/tipuedrop_content.js' %}"></script>
+        <script src="{% static 'assets/js/global.js' %}"></script>
+        <script src="{% static 'assets/js/main.js' %}"></script>
+        <!-- Page and UI related js -->
+        <script src="{% static 'assets/js/signup.js' %}"></script>
+</body>
+</body>
+
+</html>

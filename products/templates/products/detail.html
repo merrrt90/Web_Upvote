@@ -1,0 +1,239 @@
+{% extends 'base.html'%}
+{% block content %}
+{% load static %}
+{% load nav_tags %}
+<style>
+    .comment-form-comment input,
+    select,
+    textarea {
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 3px 3px 3px 3px;
+        box-shadow: 1px 1px 3px #EEEEEE inset;
+        color: black;
+        font-size: 15px;
+        padding: 1.6rem;
+        width: 100% !important;
+    }
+</style>
+<div class="view-wrapper">
+
+    <!-- product detail nav -->
+    <div class="questions-nav">
+        <div class="inner is-scrollable">
+            <div class="container">
+                <div class="questions-nav-menu">
+                    <a href="{% url 'home' %}" class="menu-item">
+                        <i data-feather="home"></i>
+                        <span>Home</span>
+                    </a>
+                    <a href="{% url 'category-detail' product.category.slug %}" class="menu-item">
+                        <i data-feather="mdi mdi-apps"></i>
+                        <span>{{product.category}}</span>
+                    </a>
+                    <a href="{% url 'product-detail' product.slug %}" class="menu-item">
+                        <i data-feather="folder"></i>
+                        <span>{{product.title}}</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Question wrap -->
+    <div class="questions-wrap is-smaller">
+        <!-- Container -->
+        <div class="container">
+            <div class="columns true-dom is-hidden">
+                <div class="column is-9">
+                    <!-- user stats -->
+                    <div class="stats-wrapper">
+                        <div class="stats-header">
+                            <div class="avatar-wrapper">
+                                <img class="avatar" src="{{product.icon.url}}" data-user-popover="0" alt="">
+                                <div class="badge">
+                                    <i data-feather="check"></i>
+                                </div>
+                            </div>
+                            <div class="user-info">
+                                <h4>{{product.title}}</h4>
+                                <p>{{product.description}}</p>
+                                <p><b>Website: </b><a href='{{product.website}}' target='_blank'>{{product.website}}</a>
+                                </p>
+                            </div>
+                            <div class="main-stats">
+                                <div class="stat-block is-centered">
+                                    <h4>Comments</h4>
+                                    <p>{{comments.count}}</p>
+                                </div>
+                                <div class="friend-stats" style="margin-left:7px;">
+                                    {% if  product|is_voted_tag:user %}
+                                    <input type="button" class="button is-solid primary-button raised"
+                                        id="like{{ product.id }}" name="{{ product.id }}" value="{{product.total_vote}}
+                                        Voted" style="padding-top: 10px;padding-bottom: 30px;width:200px;" />
+
+                                    {% else %}
+                                    <input type="button" class="button is-solid dark-grey-button raised"
+                                        id="like{{ product.id }}" name="{{ product.id }}" value="{{product.total_vote}}
+                                        Vote" style="padding-top: 10px;padding-bottom: 30px;width:200px;" />
+                                    {% endif %}
+                                </div>
+                                {% if user.is_authenticated %}
+                                <script>
+                                    $('#like{{ product.id }}').click(function () {
+                                        var count = 0;
+                                        $.ajax({
+                                            type: "POST",
+                                            url: "{% url 'upvote' product.id %}",
+                                            data: { 'product_id': $(this).attr('name'), 'csrfmiddlewaretoken': '{{ csrf_token }}' },
+                                            dataType: "json",
+                                            success: function (response) {
+                                                var string = JSON.stringify(response);
+                                                var objects = JSON.parse(string);
+                                                count = objects[0].fields.votes.length;
+                                            },
+                                            error: function (rs, e) {
+
+                                            }
+                                        }).done(function (data, textStatus, jqXHR) {
+
+                                            if ($('#like{{ product.id }}').attr('class') == 'button is-solid primary-button raised') {
+                                                $('#like{{ product.id }}').attr('class', 'button is-solid dark-grey-button raised');
+                                                $('#like{{ product.id }}').attr('value', count + ' Vote');
+                                            } else {
+                                                $('#like{{ product.id }}').attr('class', 'button is-solid primary-button raised');
+                                                $('#like{{ product.id }}').attr('value', count + ' Voted');
+                                            }
+                                        });
+                                    })
+                                </script>
+                                {% else %}
+                                <script>
+                                    $('#like{{ product.id }}').click(function () {
+                                        window.location = "{% url 'login' %}";
+                                    })
+                                </script>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="achievements">
+                            <div class="header">
+                                <h3>Photos</h3>
+                            </div>
+
+                            <div class="achievements-carousel-wrap">
+
+                                <div class="achievements-carousel">
+                                    {% for img in images %}
+                                    <a href="{{img.image.url}}" data-fancybox="cl-group-demo"
+                                        data-thumb="{{img.image.url}}">
+                                        <div class="achievement has-text-centered" style="width: 200px;display: block;
+                                        float: left;">
+                                            <img src="{{img.image.url}}" alt="">
+                                        </div>
+                                    </a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% if product.youtube %}
+                        <div class="achievements">
+                            <div class="header">
+                                <h3>Youtube Video</h3>
+                            </div>
+                            <div id="youtube_div" class="stats-header">
+                            </div>
+                        </div>
+                        <script>
+                            function getId(url) {
+                                var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+                                var match = url.match(regExp);
+
+                                if (match && match[2].length == 11) {
+                                    return match[2];
+                                } else {
+                                    return 'error';
+                                }
+                            }
+
+                            var myId = getId('{{product.youtube}}');
+
+                            $('#youtube_div').html('<iframe width="560" height="350" src="//www.youtube.com/embed/' + myId + '" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>');
+                        </script>
+                        {% endif %}
+                        <div class="achievements">
+                            <div class="header">
+                                <h3>Description</h3>
+                            </div>
+                            <div class="stats-header">
+                                <span> {{product.body}}</span>
+                            </div>
+                        </div>
+
+
+                        <div class="quick-activity">
+                            <div class="header">
+                                <h3>Comments</h3>
+                            </div>
+
+                            <div class="activity-list">
+                                {% for comment in comments %}
+                                <div class="activity-item">
+                                    <div class="avatar-wrap">
+                                        {% if comment.author.avatar %}
+                                        <img class="avatar" src="{{comment.author.avatar.url}}" alt="">
+                                        {% else %}
+                                        <img class="avatar" src="{% static '/assets/images/person-male.png' %}" alt="">
+                                        {% endif %}
+                                        <div class="badge">
+                                            <i data-feather="check"></i>
+                                        </div>
+                                    </div>
+                                    <div class="meta">
+                                        <span>{{comment.author.username}}</span>
+                                        <span><a>{{comment.comment}}</a></span>
+                                        <small>{{comment.comment_date}}</small>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Load more 
+                            <div class=" load-more-wrap has-text-centered">
+                                <a href="#" class="load-more-button">Load More</a>
+                            </div>-->
+                            {% if user.is_authenticated %}
+                            <div class="achievements">
+                                <div class="header">
+                                    <h3>Add Your Comment</h3>
+                                </div>
+                                <div class="stats-header">
+                                    <form method="post" action="{% url 'add-comment' %}" style="width:100%">
+                                        {% csrf_token %}
+                                        <textarea name="comment" placeholder="Add Your Comment..."></textarea>
+                                        <input type="hidden" name="product_id" value="{{ product.id }}">
+                                        <button type="submit" class="button is-rounded is-solid accent-button"
+                                            style="float: right;">Submit
+                                            Comment</button>
+                                    </form>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="column is-3">
+                    {% related_product_widget product %}
+                    {% category_widget %}
+                    {% last_comment_widget %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script>
+    $("body").addClass("is-white");
+</script>
+{% endblock %}

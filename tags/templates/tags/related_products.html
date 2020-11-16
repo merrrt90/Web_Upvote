@@ -1,0 +1,20 @@
+{% load static %}
+<div class="card">
+    <div class="card-heading is-bordered">
+        <h4>Related Products</h4>
+    </div>
+    <div class="card-body no-padding">
+        <!-- Story block -->
+        {% for item in products %}
+        <div class="story-block">
+            <div class="img-wrapper">
+                <a href="{% url 'product-detail' item.slug %}"> <img src="{{item.icon.url}}" alt=""></a>
+            </div>
+            <div class="story-meta">
+                <a href="{% url 'product-detail' item.slug %}"><span>{{item.title}}</span>
+                    <span>{{item.summary_desc}}</span></a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>

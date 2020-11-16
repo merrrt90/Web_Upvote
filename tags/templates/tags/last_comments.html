@@ -1,0 +1,27 @@
+{% load static %}
+<div class="card">
+    <div class="card-heading is-bordered">
+        <h4>Last Comments</h4>
+    </div>
+    <div class="card-body no-padding">
+        <!-- Story block -->
+        {% for item in comments %}
+        <div class="story-block">
+            <div class="img-wrapper">
+                <a href="{% url 'product-detail' item.product.slug %}">
+                    {% if item.author.avatar %}
+                    <img src="{{item.author.avatar.url}}" alt="">
+                    {% else %}
+                    <img src="{% static '/assets/images/person-male.png' %}" alt="">
+                    {% endif %}
+
+                </a>
+            </div>
+            <div class="story-meta">
+                <a href="{% url 'product-detail' item.product.slug %}"><span>{{item.author.username}}</span>
+                    <span>{{item.comment}}</span></a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
